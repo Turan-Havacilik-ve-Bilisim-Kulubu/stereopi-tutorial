@@ -23,7 +23,8 @@
 # 
 
 
-from picamera import PiCamera
+from picamera2 import Picamera2
+from stereo_config import init_stereo_cameras
 import time
 import cv2
 import numpy as np
@@ -61,11 +62,10 @@ img_height = int (cam_height * scale_ratio)
 capture = np.zeros((img_height, img_width, 4), dtype=np.uint8)
 print ("Scaled image resolution: "+str(img_width)+" x "+str(img_height))
 
-# Initialize the camera
-camera = PiCamera(stereo_mode='side-by-side',stereo_decimate=False)
-camera.resolution=(cam_width, cam_height)
-camera.framerate = 20
-camera.hflip = True
+# Initialize the cameras
+left_camera, right_camera = init_stereo_cameras()
+left_camera.start()
+right_camera.start()
 
 # Implementing calibration data
 print('Read calibration data and rectifying stereo pair...')
@@ -128,19 +128,37 @@ def load_map_settings( fName ):
 
 load_map_settings ("3dmap_set.txt")
 
-# capture frames from the camera
-for frame in camera.capture_continuous(capture, format="bgra", use_video_port=True, resize=(img_width,img_height)):
+# Modified capture loop
+while True:
     t1 = datetime.now()
-    pair_img = cv2.cvtColor (frame, cv2.COLOR_BGR2GRAY)
-    imgLeft = pair_img [0:img_height,0:int(img_width/2)] #Y+H and X+W
-    imgRight = pair_img [0:img_height,int(img_width/2):img_width] #Y+H and X+W
+    
+    # Capture from both cameras
+    left_array = left_camera.capture_array()
+    right_array = right_camera.capture_array()
+    
+    # Convert to grayscale
+    imgLeft = cv2.cvtColor(left_array, cv2.COLOR_RGB2GRAY)
+    imgRight = cv2.cvtColor(right_array, cv2.COLOR_RGB2GRAY)
+    
+    # Resize if needed
+    imgLeft = cv2.resize(imgLeft, (img_width//2, img_height))
+    imgRight = cv2.resize(imgRight, (img_width//2, img_height))
+    
     rectified_pair = calibration.rectify((imgLeft, imgRight))
     disparity = stereo_depth_map(rectified_pair)
-    # show the frame
+    
     cv2.imshow("left", imgLeft)
     cv2.imshow("right", imgRight)    
 
     t2 = datetime.now()
     print ("DM build time: " + str(t2-t1))
+    
+    key = cv2.waitKey(1) & 0xFF   
+    if key == ord("q"):
+        break
+
+left_camera.stop()
+right_camera.stop()
+cv2.destroyAllWindows()
 
 
