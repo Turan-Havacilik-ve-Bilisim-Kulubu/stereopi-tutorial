@@ -24,6 +24,7 @@
 
 
 from picamera2 import Picamera2
+import libcamera
 import time
 import cv2
 import numpy as np
@@ -35,28 +36,40 @@ from stereo_config import init_stereo_cameras
 filename = './scenes/photo.png'
 
 # Camera settings
-cam_width = 1280
-cam_height = 480
-
-# Final image capture settings
+cam_width = 1280              # Total width for both cameras
+cam_height = 480              
 scale_ratio = 0.5
 
+# Each camera gets half the total width
 single_cam_width = cam_width // 2
 cam_width = int((cam_width+31)/32)*32
 cam_height = int((cam_height+15)/16)*16
 print("Used camera resolution: "+str(cam_width)+" x "+str(cam_height))
 
-# Calculate scaled dimensions
+# Buffer for captured image settings
 img_width = int(cam_width * scale_ratio)
 img_height = int(cam_height * scale_ratio)
 print("Scaled image resolution: "+str(img_width)+" x "+str(img_height))
 
-# Initialize the stereo cameras
-left_cam, right_cam = init_stereo_cameras()
+# Initialize both cameras
+picam2_left = Picamera2(0)
+picam2_right = Picamera2(1)
 
-# Start both cameras
-left_cam.start()
-right_cam.start()
+# Configure cameras
+config_left = picam2_left.create_still_configuration(
+    main={"size": (single_cam_width, cam_height)},
+    transform=libcamera.Transform(hflip=True, vflip=False)  # Added vflip for 180-degree rotation
+)
+config_right = picam2_right.create_still_configuration(
+    main={"size": (single_cam_width, cam_height)},
+    transform=libcamera.Transform(hflip=True, vflip=False)  # Added vflip for 180-degree rotation
+)
+
+picam2_left.configure(config_left)
+picam2_right.configure(config_right)
+picam2_left.start()
+picam2_right.start()
+time.sleep(2)  # Warm-up time
 
 t2 = datetime.now()
 counter = 0
@@ -71,8 +84,8 @@ try:
 
         # Capture frames from both cameras
         
-        left_frame = left_cam.capture_array()
-        right_frame = right_cam.capture_array()
+        left_frame = picam2_left.capture_array()
+        right_frame = picam2_right.capture_array()
         left_frame = cv2.cvtColor(left_frame, cv2.COLOR_BGR2RGB)
         right_frame = cv2.cvtColor(right_frame, cv2.COLOR_BGR2RGB)
 
@@ -98,8 +111,8 @@ try:
 
 finally:
     # Clean up
-    left_cam.stop()
-    right_cam.stop()
+    picam2_left.stop()
+    picam2_right.stop()
     cv2.destroyAllWindows()
 
 
