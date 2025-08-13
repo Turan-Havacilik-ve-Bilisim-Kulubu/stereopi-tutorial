@@ -32,7 +32,7 @@ from stereovision.exceptions import ChessboardNotFoundError
 
 
 # Global variables preset
-total_photos = 30
+total_photos = 75
 photo_width = 640
 photo_height = 240
 img_width = 320
@@ -40,9 +40,9 @@ img_height = 240
 image_size = (img_width,img_height)
 
 # Chessboard parameters
-rows = 5
-columns = 8
-square_size = 3
+rows = 6
+columns = 9
+square_size = 2.7 # in centimeters
 
 
 calibrator = StereoCalibrator(rows, columns, square_size, image_size)
