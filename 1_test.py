@@ -78,7 +78,7 @@ try:
 
         # Combine frames side by side
         combined_frame = np.hstack((left_frame, right_frame))
-        
+        frame = cv2.resize(frame, (img_width, img_height))
         # Resize if needed
         if scale_ratio != 1.0:
             combined_frame = cv2.resize(combined_frame, (img_width*2, img_height))
