@@ -36,7 +36,7 @@ filename = './scenes/photo.png'
 
 # Camera settings
 cam_width = 1280
-cam_height = 720
+cam_height = 480
 
 # Final image capture settings
 scale_ratio = 0.5
@@ -65,8 +65,11 @@ try:
         avgtime = avgtime + (timediff.total_seconds())
 
         # Capture frames from both cameras
+        
         left_frame = left_cam.capture_array()
         right_frame = right_cam.capture_array()
+        left_frame = cv2.cvtColor(left_frame, cv2.COLOR_BGR2RGB)
+        right_frame = cv2.cvtColor(right_frame, cv2.COLOR_BGR2RGB)
 
         # Combine frames side by side
         combined_frame = np.hstack((left_frame, right_frame))
