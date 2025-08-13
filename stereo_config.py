@@ -8,9 +8,7 @@ def init_stereo_cameras():
     
     # Configure both cameras with identical settings
     config = {
-        "size": (1280, 720),
-        "format": "RGB888",
-        "buffer_count": 2
+        "size": (1280, 720)
     }
     
     left_config = left_cam.create_still_configuration(raw=config)

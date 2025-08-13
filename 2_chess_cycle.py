@@ -75,11 +75,11 @@ picam2_right = Picamera2(1)
 # Configure cameras
 config_left = picam2_left.create_still_configuration(
     main={"size": (single_cam_width, cam_height)},
-    transform=libcamera.Transform(hflip=True, vflip=True)  # Added vflip for 180-degree rotation
+    transform=libcamera.Transform(hflip=True, vflip=False)  # Added vflip for 180-degree rotation
 )
 config_right = picam2_right.create_still_configuration(
     main={"size": (single_cam_width, cam_height)},
-    transform=libcamera.Transform(hflip=True, vflip=True)  # Added vflip for 180-degree rotation
+    transform=libcamera.Transform(hflip=True, vflip=False)  # Added vflip for 180-degree rotation
 )
 
 picam2_left.configure(config_left)

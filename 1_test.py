@@ -23,63 +23,75 @@
 # 
 
 
-import picamera
-from picamera import PiCamera
+from picamera2 import Picamera2
 import time
 import cv2
 import numpy as np
 import os
 from datetime import datetime
-
+from stereo_config import init_stereo_cameras
 
 # File for captured image
 filename = './scenes/photo.png'
 
-# Camera settimgs
+# Camera settings
 cam_width = 1280
-cam_height = 480
+cam_height = 720
 
 # Final image capture settings
 scale_ratio = 0.5
 
-# Camera resolution height must be dividable by 16, and width by 32
-cam_width = int((cam_width+31)/32)*32
-cam_height = int((cam_height+15)/16)*16
-print ("Used camera resolution: "+str(cam_width)+" x "+str(cam_height))
+# Calculate scaled dimensions
+img_width = int(cam_width * scale_ratio)
+img_height = int(cam_height * scale_ratio)
+print("Scaled image resolution: "+str(img_width)+" x "+str(img_height))
 
-# Buffer for captured image settings
-img_width = int (cam_width * scale_ratio)
-img_height = int (cam_height * scale_ratio)
-capture = np.zeros((img_height, img_width, 4), dtype=np.uint8)
-print ("Scaled image resolution: "+str(img_width)+" x "+str(img_height))
+# Initialize the stereo cameras
+left_cam, right_cam = init_stereo_cameras()
 
-# Initialize the camera
-camera = PiCamera(stereo_mode='side-by-side',stereo_decimate=False)
-camera.resolution=(cam_width, cam_height)
-camera.framerate = 20
-camera.hflip = True
-
+# Start both cameras
+left_cam.start()
+right_cam.start()
 
 t2 = datetime.now()
 counter = 0
 avgtime = 0
-# Capture frames from the camera
-for frame in camera.capture_continuous(capture, format="bgra", use_video_port=True, resize=(img_width,img_height)):
-    counter+=1
-    t1 = datetime.now()
-    timediff = t1-t2
-    avgtime = avgtime + (timediff.total_seconds())
-    cv2.imshow("pair", frame)
-    key = cv2.waitKey(1) & 0xFF
-    t2 = datetime.now()
-    # if the `q` key was pressed, break from the loop and save last image
-    if key == ord("q") :
-        avgtime = avgtime/counter
-        print ("Average time between frames: " + str(avgtime))
-        print ("Average FPS: " + str(1/avgtime))
-        if (os.path.isdir("./scenes")==False):
-            os.makedirs("./scenes")
-        cv2.imwrite(filename, frame)
-        break
-   
-    
+
+try:
+    while True:
+        counter += 1
+        t1 = datetime.now()
+        timediff = t1-t2
+        avgtime = avgtime + (timediff.total_seconds())
+
+        # Capture frames from both cameras
+        left_frame = left_cam.capture_array()
+        right_frame = right_cam.capture_array()
+
+        # Combine frames side by side
+        combined_frame = np.hstack((left_frame, right_frame))
+        
+        # Resize if needed
+        if scale_ratio != 1.0:
+            combined_frame = cv2.resize(combined_frame, (img_width*2, img_height))
+
+        cv2.imshow("Stereo Pair", combined_frame)
+        key = cv2.waitKey(1) & 0xFF
+        t2 = datetime.now()
+
+        if key == ord("q"):
+            avgtime = avgtime/counter
+            print("Average time between frames: " + str(avgtime))
+            print("Average FPS: " + str(1/avgtime))
+            if not os.path.isdir("./scenes"):
+                os.makedirs("./scenes")
+            cv2.imwrite(filename, combined_frame)
+            break
+
+finally:
+    # Clean up
+    left_cam.stop()
+    right_cam.stop()
+    cv2.destroyAllWindows()
+
+
