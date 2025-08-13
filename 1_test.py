@@ -42,8 +42,8 @@ cam_height = 480
 scale_ratio = 0.5
 
 # Calculate scaled dimensions
-img_width = int(cam_width * scale_ratio)
-img_height = int(cam_height * scale_ratio)
+img_width = 640
+img_height = 240
 print("Scaled image resolution: "+str(img_width)+" x "+str(img_height))
 
 # Initialize the stereo cameras
