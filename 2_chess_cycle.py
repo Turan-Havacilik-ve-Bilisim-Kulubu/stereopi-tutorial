@@ -32,7 +32,7 @@ import numpy as np
 
 # Photo session settings
 total_photos = 30             
-countdown = 5                 
+countdown = 2                 # Changed from 5 to 2 seconds
 font=cv2.FONT_HERSHEY_SIMPLEX 
  
 # Camera settings
@@ -98,7 +98,7 @@ while True:
         cv2.imwrite(filename, frame)
         print(f' [{counter} of {total_photos}] {filename}')
         t2 = datetime.now()
-        time.sleep(1)
+        # Removed sleep(1) to make captures faster
         cntdwn_timer = 0
         continue
         
