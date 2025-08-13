@@ -27,7 +27,7 @@ import cv2
 import os
 
 # Global variables preset
-total_photos = 75
+total_photos = 30
 photo_width = 640
 photo_height = 240
 img_height = 240

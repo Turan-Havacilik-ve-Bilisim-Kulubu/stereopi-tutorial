@@ -48,8 +48,8 @@ import cv2
 import numpy as np
 
 # Photo session settings
-total_photos = 75             
-countdown = 2                 # Changed from 5 to 2 seconds
+total_photos = 30           
+countdown = 3          # Changed from 5 to 2 seconds
 font=cv2.FONT_HERSHEY_SIMPLEX 
  
 # Camera settings
