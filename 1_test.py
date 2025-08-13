@@ -84,19 +84,19 @@ try:
 
         # Capture frames from both cameras
         
-        left_frame = picam2_left.capture_array()
-        right_frame = picam2_right.capture_array()
+        # Capture from both cameras
+        left_frame = picam2_left.capture_array("main")
+        right_frame = picam2_right.capture_array("main")
+
+        # Convert BGR to RGB
         left_frame = cv2.cvtColor(left_frame, cv2.COLOR_BGR2RGB)
         right_frame = cv2.cvtColor(right_frame, cv2.COLOR_BGR2RGB)
 
         # Combine frames side by side
-        combined_frame = np.hstack((left_frame, right_frame))
-        combined_frame = cv2.resize(combined_frame, (img_width, img_height))
-        # Resize if needed
-        if scale_ratio != 1.0:
-            combined_frame = cv2.resize(combined_frame, (img_width*2, img_height))
+        frame = np.hstack((left_frame, right_frame))
+        frame = cv2.resize(frame, (img_width, img_height))
 
-        cv2.imshow("Stereo Pair", combined_frame)
+        cv2.imshow("Stereo Pair", frame)
         key = cv2.waitKey(1) & 0xFF
         t2 = datetime.now()
 
@@ -106,7 +106,7 @@ try:
             print("Average FPS: " + str(1/avgtime))
             if not os.path.isdir("./scenes"):
                 os.makedirs("./scenes")
-            cv2.imwrite(filename, combined_frame)
+            cv2.imwrite(filename, frame)
             break
 
 finally:
