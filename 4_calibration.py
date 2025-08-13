@@ -40,9 +40,9 @@ img_height = 240
 image_size = (img_width,img_height)
 
 # Chessboard parameters
-rows = 6
-columns = 9
-square_size = 2.5
+rows = 5
+columns = 8
+square_size = 3
 
 
 calibrator = StereoCalibrator(rows, columns, square_size, image_size)
