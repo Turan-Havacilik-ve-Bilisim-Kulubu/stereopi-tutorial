@@ -58,11 +58,11 @@ picam2_right = Picamera2(1)
 # Configure cameras
 config_left = picam2_left.create_still_configuration(
     main={"size": (single_cam_width, cam_height)},
-    transform=libcamera.Transform(hflip=True)
+    transform=libcamera.Transform(hflip=True, vflip=True)  # Added vflip for 180-degree rotation
 )
 config_right = picam2_right.create_still_configuration(
     main={"size": (single_cam_width, cam_height)},
-    transform=libcamera.Transform(hflip=True)
+    transform=libcamera.Transform(hflip=True, vflip=True)  # Added vflip for 180-degree rotation
 )
 
 picam2_left.configure(config_left)
@@ -80,6 +80,10 @@ while True:
     # Capture from both cameras
     left_frame = picam2_left.capture_array("main")
     right_frame = picam2_right.capture_array("main")
+    
+    # Convert BGR to RGB
+    left_frame = cv2.cvtColor(left_frame, cv2.COLOR_BGR2RGB)
+    right_frame = cv2.cvtColor(right_frame, cv2.COLOR_BGR2RGB)
     
     # Combine frames side by side
     frame = np.hstack((left_frame, right_frame))
