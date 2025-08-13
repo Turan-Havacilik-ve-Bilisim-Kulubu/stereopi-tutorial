@@ -23,6 +23,24 @@
 # 
 
 
+import sys
+import subprocess
+
+try:
+    import numpy as np
+    np_version = np.__version__
+    if np_version.startswith('2'):
+        print("WARNING: NumPy 2.x detected. OpenCV requires NumPy 1.x")
+        print("Attempting to downgrade NumPy...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy<2"])
+        print("Please restart the script after NumPy downgrade")
+        sys.exit(1)
+except ImportError:
+    print("Installing compatible NumPy version...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy<2"])
+    print("Please restart the script after NumPy installation")
+    sys.exit(1)
+
 import cv2
 import os
 from picamera2 import Picamera2

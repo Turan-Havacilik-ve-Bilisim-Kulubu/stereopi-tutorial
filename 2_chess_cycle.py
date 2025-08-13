@@ -22,24 +22,30 @@
 # code in this tutorial was taken from his lessons.
 # 
 
-import os
+import sys
+import subprocess
+
+try:
+    import numpy as np
+    np_version = np.__version__
+    if np_version.startswith('2'):
+        print("WARNING: NumPy 2.x detected. OpenCV requires NumPy 1.x")
+        print("Attempting to downgrade NumPy...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy<2"])
+        print("Please restart the script after NumPy downgrade")
+        sys.exit(1)
+except ImportError:
+    print("Installing compatible NumPy version...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy<2"])
+    print("Please restart the script after NumPy installation")
+    sys.exit(1)
+
 import time
 from datetime import datetime
 from picamera2 import Picamera2
 import libcamera
 import cv2
 import numpy as np
-
-# Check NumPy version and downgrade if needed
-np_version = np.__version__
-if np_version.startswith('2'):
-    import sys
-    import subprocess
-    print("WARNING: NumPy 2.x detected. OpenCV requires NumPy 1.x")
-    print("Attempting to downgrade NumPy...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "numpy<2"])
-    print("Please restart the script after NumPy downgrade")
-    sys.exit(1)
 
 # Photo session settings
 total_photos = 30             
